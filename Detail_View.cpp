@@ -87,6 +87,7 @@ Detail_View::Detail_View(Model* model, Controller* controller, wxWindow* parent,
     cb3->Connect( wxEVT_CHECKBOX,wxCommandEventHandler( Detail_View::Enable_Disable ), NULL, this);
     btn_quit->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Detail_View::OnExit ), NULL, this );
     btn_close->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Detail_View::OnClose ), NULL, this );
+    Connect (wxEVT_CLOSE_WINDOW, wxCommandEventHandler( Detail_View :: OnClose) );
 
     Update();
 }
@@ -99,6 +100,7 @@ Detail_View::~Detail_View() {
     cb2->Disconnect( wxEVT_CHECKBOX,wxCommandEventHandler( Detail_View::SetData ), NULL, this);
     cb3->Disconnect( wxEVT_CHECKBOX,wxCommandEventHandler( Detail_View::Enable_Disable ), NULL, this);
     btn_close->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Detail_View::OnClose ), NULL, this );
+    Disconnect (wxEVT_CLOSE_WINDOW, wxCommandEventHandler( Detail_View :: OnClose) );
 
     // unsubscribe from model
     model->removeObserver(this);
@@ -173,7 +175,8 @@ void Detail_View::OnClose(wxCommandEvent &event) {
 }
 
 void Detail_View::OnExit(wxCommandEvent &event) {
-
-    exit(1);
+    wxMessageDialog *msg = new wxMessageDialog(NULL, wxT("Vuoi uscire davvero dal programma ?"), wxT("Attenzione !!!"), wxYES_NO | wxNO_DEFAULT );
+        if (msg->ShowModal() == wxID_YES)
+            exit (1);
 
 }

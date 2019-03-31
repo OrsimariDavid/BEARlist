@@ -31,7 +31,6 @@ public:
 
 private:
     Model* model;
-    wxString text_list;
 
 };
 

@@ -4,6 +4,7 @@
 
 #include "Principal_View.h"
 
+
 Principal_View::Principal_View(Model* model, Controller* controller, wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxFrame( parent, id, title, pos, size, style ) {
 
     wxMenu* menuFile = new wxMenu; //creas oggetto "Menu"
@@ -14,7 +15,7 @@ Principal_View::Principal_View(Model* model, Controller* controller, wxWindow* p
     menuFile->AppendSeparator(); //inserisce una linea di separazione fra le voci del menu;
     menuFile->Append ( wxID_EXIT );
 
-    menuTask->Append ( Menu_Task_New, "&NewL... \tCtrl-T", "New task" );
+    menuTask->Append ( Menu_Task_New, "&New... \tCtrl-T", "New task" );
     menuTask->Append ( Menu_Task_Rename, "&Rename... \tCtrl-X", "Rename selected task" );
     menuTask->Append ( Menu_Task_Delete, "&Delete... \tCtrl-Z", "Delete selected task" );
 
@@ -71,6 +72,7 @@ Principal_View::Principal_View(Model* model, Controller* controller, wxWindow* p
     Connect (Menu_File_Rename, wxEVT_COMMAND_MENU_SELECTED,wxCommandEventHandler( Principal_View :: OnRename));
     Connect (Menu_File_Delete, wxEVT_COMMAND_MENU_SELECTED,wxCommandEventHandler( Principal_View :: OnDelete));
     Connect (Menu_File_Clear, wxEVT_COMMAND_MENU_SELECTED,wxCommandEventHandler( Principal_View :: OnClear));
+    Connect (wxEVT_CLOSE_WINDOW, wxCommandEventHandler( Principal_View :: OnClose) );
 
     Update();
 }
@@ -89,6 +91,7 @@ Principal_View::~Principal_View() {
     Disconnect (Menu_File_Rename, wxEVT_COMMAND_MENU_SELECTED,wxCommandEventHandler( Principal_View :: OnRename));
     Disconnect (Menu_File_Delete, wxEVT_COMMAND_MENU_SELECTED,wxCommandEventHandler( Principal_View :: OnDelete));
     Disconnect (Menu_File_Clear, wxEVT_COMMAND_MENU_SELECTED,wxCommandEventHandler( Principal_View :: OnClear));
+    Disconnect (wxEVT_CLOSE_WINDOW, wxCommandEventHandler( Principal_View :: OnClose) );
 
     // unsubscribe from model
     model->removeObserver(this);
@@ -114,6 +117,7 @@ void Principal_View::OnDblClick(wxCommandEvent &event) {
     wxString text = list_box->GetString(sel);
     controller->dbclick_principalView(text);
 }
+
 
 void Principal_View::OnNew(wxCommandEvent &event) {
     if (model->Detail_isOpen || model->List_isOpen) { //chiude le viste List e Detail se aperte
@@ -179,9 +183,16 @@ void Principal_View::OnClear(wxCommandEvent &event) {
     controller->list_clear();
 }
 
+void Principal_View::OnClose(wxCommandEvent &event) {
+    wxMessageDialog *msg = new wxMessageDialog(NULL, wxT("Vuoi uscire davvero dal programma ?"), wxT("Attenzione !!!"), wxYES_NO | wxNO_DEFAULT );
+    if (msg->ShowModal() == wxID_YES)
+    exit (1);
+}
+
 void Principal_View::Update() {
 
-    if (model->List_isOpen){
+
+    if (model->List_isOpen) {
         menuTask->Enable(Menu_Task_New, true);
         menuTask->Enable(Menu_Task_Rename, true);
         menuTask->Enable(Menu_Task_Delete, true);
@@ -192,32 +203,76 @@ void Principal_View::Update() {
     }
 
     list_box->Clear();
-    list<Task *> task_list = model->getData();
+    list<Task> task_list = model->getData();
+
     if (task_list.size() != 0) {
-        // crea una lista temporanea senza duplicati
-        vector<std::string> temp_list;
-        auto itr = task_list.begin();
-        temp_list.push_back((*itr)->list);
-        int max = temp_list.size();
-        for (itr = task_list.begin(); itr != task_list.end(); itr++) {
+
+        vector<Group_List> temp_vect;
+        temp_vect = Counter_Activity(task_list);
+
+        int max = temp_vect.size();
+
+        for (int i = 0; i != max; i++) { //conversione in unico vettore di stringhe
+            s.append (temp_vect[i].list);
+            s.append("    ");
+            s = s + "(" + to_string(temp_vect[i].num_activity) + ")";
+            list_box->Append( s ); //visualizza la lista filtrata senza duplicati
+            s="";
+        }
+    }
+}
+
+vector<Group_List> Principal_View::Counter_Activity(list<Task> task_list) { //conteggia il numero delle attività della singola lista
+
+    vector<Group_List> temp_vect;
+
+    for (auto itr = task_list.begin(); itr != task_list.end(); itr++) {
+        num_activity = 0;
+        s = itr->list;
+        for (auto itr2 = task_list.begin(); itr2 != task_list.end(); itr2++) {
+            if (itr2->list.compare (s)==0 && !itr2->description.empty())
+                num_activity++;
+
+        }
+        myGroup.list = s;
+        myGroup.num_activity = num_activity;
+        temp_vect.push_back(myGroup);
+    }
+
+    return Erase_Duplicate(temp_vect);
+}
+
+vector<Group_List> Principal_View::Erase_Duplicate(vector<Group_List> temp_vect) { //elimina i duplicati nella lista da pubblicare
+        s="";
+        num_activity=0;
+        myGroup.list = "";
+        myGroup.num_activity = 0;
+        vector<Group_List> temp_vect2;
+        // creo vettore da visualizzare senza duplicati
+        auto itr = temp_vect.begin();
+        myGroup.list = itr->list;
+        myGroup.num_activity = itr->num_activity;
+        temp_vect2.push_back(myGroup);
+
+        int max = temp_vect2.size();
+        for (itr = temp_vect.begin(); itr != temp_vect.end(); itr++) {
             bool find = false;
             int i = 0;
             while (i != max) {
-                if ((*itr)->list == temp_list[i]) {
+                if (itr->list == temp_vect2[i].list) {
                     find = true;
                     break;
                 }
                 i++;
             }
-            if (!find && ((*itr)->list != "")) { //elimina eventuale elemento vuoto per via delle \n nel file
-                temp_list.push_back((*itr)->list);
-                max = temp_list.size();
+            if (!find && (itr->list != "")) { //"se non l'hai trovato e non è vuoto - inseriscilo !!" elimina eventuale elemento vuoto per via delle \n nel file
+                myGroup.list = itr->list;
+                myGroup.num_activity = itr->num_activity;
+                temp_vect2.push_back(myGroup);
+                max = temp_vect2.size();
             }
 
         }
-        for (int i = 0; i != max; i++) { //visualizza la lista filtrata senza duplicati
-            list_box->Append(temp_list[i]);
-        }
-    }
+        return temp_vect2;
 
 }

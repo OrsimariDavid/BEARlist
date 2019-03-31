@@ -60,6 +60,7 @@ List_View::List_View(Model* model, Controller* controller, wxWindow* parent, wxW
     m_renameb->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( List_View::OnRename ), NULL, this );
     m_deleteb->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( List_View::OnDelete ), NULL, this );
     btn_close->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( List_View::OnClose ), NULL, this );
+    Connect (wxEVT_CLOSE_WINDOW, wxCommandEventHandler( List_View :: OnClose) );
 
     Update();
 }
@@ -72,6 +73,7 @@ List_View::~List_View() {
     m_renameb->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( List_View::OnRename ), NULL, this );
     m_deleteb->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( List_View::OnDelete ), NULL, this );
     btn_close->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( List_View::OnClose ), NULL, this );
+    Disconnect (wxEVT_CLOSE_WINDOW, wxCommandEventHandler( List_View :: OnClose) );
 
     // unsubscribe from model
     model->removeObserver(this);
@@ -134,12 +136,12 @@ void List_View::Update() {
     }
     selectedlist->SetLabel(model->text);
     list_detail->Clear();
-    list<Task *> task_list = model->getData();
+    list<Task> task_list = model->getData();
 
     //riempie la listbox in visualizzazione
     for (auto itr = task_list.begin(); itr != task_list.end(); itr++) {
-        if ((*itr)->list == model->text)
-            list_detail->Append((*itr)->description);
+        if (itr->list == model->text)
+            list_detail->Append(itr->description);
     }
 
 }
@@ -163,4 +165,5 @@ void List_View::OnClose(wxCommandEvent &event) {
     principal_ptr->menuTask->Enable(Menu_Task_New, false);
     principal_ptr->menuTask->Enable(Menu_Task_Rename, false);
     principal_ptr->menuTask->Enable(Menu_Task_Delete, false);
+
 }

@@ -31,7 +31,7 @@ bool MyApp::OnInit() {
     frameList->Show(false);
     frameDetail->Show(false);
 
-    intro_img* intro = new intro_img("/Users/david/Esame/BEARlist/polar-bear.jpg", frameDetail, PrincipalFrame, frameList);
+    intro_img* intro = new intro_img("./polar-bear.jpg", frameDetail, PrincipalFrame, frameList);
 
     intro->Show(true);
 

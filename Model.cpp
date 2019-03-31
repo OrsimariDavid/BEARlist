@@ -5,22 +5,22 @@
 #include "Model.h"
 
 // inserimento su file operatore
-ostream& operator<<(ostream& os, const Task* s) {
+ostream& operator<<(ostream& os, const Task s) {
     // scrive i singoli membri del task con fine linea per la getline() in lettura
-    os << s->list << '\n';
-    os << s->description << '\n';
-    os << s->data << '\n';
-    os << s->note << '\n';
-    os << s->completed << '\n';
-    os << s->priority << '\n';
-    os << s->modify<< '\n';
+    os << s.list << '\n';
+    os << s.description << '\n';
+    os << s.data << '\n';
+    os << s.note << '\n';
+    os << s.completed << '\n';
+    os << s.priority << '\n';
+    os << s.modify<< '\n';
 
     return os;
 }
 
 // estrazione da file operatore
 istream& operator>>(istream& is, Task& s) {
-    // rlegge i singoli membri del tassk
+    // rlegge i singoli membri del task
     string c;
     getline(is, s.list);
     getline(is, s.description);
@@ -46,7 +46,7 @@ istream& operator>>(istream& is, Task& s) {
     return is;
 }
 
-void Model::Save(const string& filename, list<Task*> task_list) {
+void Model::Save(const string& filename, list<Task> task_list) {
 
     //salva la lista aggiornata con i dati su file
     ofstream ofs( filename );
@@ -58,7 +58,7 @@ void Model::Save(const string& filename, list<Task*> task_list) {
 
 }
 
-list<Task*> Model::Load(string filename)  {
+list<Task> Model::Load(string filename)  {
 
     bool empty_element=false;
 
@@ -67,13 +67,12 @@ list<Task*> Model::Load(string filename)  {
 
     while ((!ifs.eof()))
     {
-        item_ptr  = new Task;
-        ifs >> *item_ptr ;
-        if (item_ptr->list.empty()) //controllo su lettura elemento vuoto
+        ifs >> item ;
+        if (item.list=="") //controllo su lettura elemento vuoto
         {
             empty_element = true;
         }
-        itemlist.push_back( item_ptr );
+        itemlist.push_back( item );
         if (empty_element)
             itemlist.pop_back(); //elimina eventuale elemento vuoto se c'è
     }
@@ -81,7 +80,7 @@ list<Task*> Model::Load(string filename)  {
 
     for (auto& itr : itemlist) //rende tutti i task non modificabili senza intervento dell'utente
     {
-        (*itr).modify = false;
+        (itr).modify = false;
     }
 
     return itemlist;
@@ -99,15 +98,24 @@ void Model::notify() {
         observer->Update();
 }
 
-list<Task*> Model::getData() { //carica la lista con i dati dal file
+list<Task> Model::getData() {
+
+    //carica la lista con i dati dal file
     itemlist=Load(filename);
     return itemlist;
 }
 
 void Model::setTextList(wxString text) {
-    this->text = text;
+    this->text = Clean_Text(text);
     List_isOpen=true;
     notify();
+}
+
+wxString Model::Clean_Text (wxString text) { //ripulisce testo della lista dal numero delle attività
+
+    size_t pos = text.find ("(",0);
+    wxString extr = text.substr (0, pos-4);
+    return extr;
 }
 
 void Model::dataClear() {
@@ -117,39 +125,44 @@ void Model::dataClear() {
 }
 
 void Model::delete_list(wxString text) { //cancella una lista con tutte le sue attività
-    int size = itemlist.size();
-    int count = 0;
+
+    itemlist.remove_if([text] (Task & s) {return s.list == text;});
+
+    Save(filename, itemlist);
+    notify();
+}
+
+void Model::delete_Activity(wxString description) { //cancella una attività
+
+    int count=0;
     for (auto itr = itemlist.begin(); itr != itemlist.end(); itr++) {
-        count++;
-        if ((*itr)->list == text)
-            itemlist.erase(itr);
-        if (itemlist.size() == 0 || count == size) //evita il crash se la lista resta priva di elementi o se cancello l'ultimo
-            break;
+        if (itr->list == this->text)
+            count++; //conta quanti task appartenenti ad una "text_list" ci sono nella lista con i dati
     }
+    if (count == 1) { //se c'è un task soltanto verifica se è vuoto o meno
+        for (auto itr = itemlist.begin(); itr != itemlist.end(); itr++) {
+            if (itr->list == this->text) {
+                itr->description = "";
+                break;
+            }
+        }
+        } else
+            itemlist.remove_if([description] (Task & s) {return s.description == description;});
+
     Save(filename, itemlist);
     notify();
 }
 
-void Model::delete_Activity(wxString text) { //cancella una attività
-    auto itr = itemlist.begin();
-    while((*itr)->description != text) {
-        itr++;
-    }
-    itemlist.erase(itr);
-    Save(filename, itemlist);
-    notify();
-}
-
-void Model::setData(Task* tempTask) {
+void Model::setData(Task tempTask) {
     itemlist.push_back(tempTask);
     Save(filename, itemlist);
     notify();
 }
 
-void Model::rename_List(wxString text, wxString renamed) {
+void Model::rename_List(wxString estr, wxString renamed) {
     for (auto itr = itemlist.begin(); itr != itemlist.end(); itr++) {
-        if ((*itr)->list == text)
-            (*itr)->list = renamed;
+        if (itr->list == estr)
+            itr->list = renamed;
     }
     Save(filename, itemlist);
     notify();
@@ -158,10 +171,10 @@ void Model::rename_List(wxString text, wxString renamed) {
 void Model::rename_Activity(wxString text, wxString renamed) {
     auto itr = itemlist.begin();
 
-    while((*itr)->description != text) {
+    while(itr->description != text) {
         itr++;
     }
-    (*itr)->description = renamed;
+    itr->description = renamed;
     Save(filename, itemlist);
     notify();
 }
@@ -177,15 +190,15 @@ void Model::setViewDetail(Task selected_el){ //aggiorna la visualizzazione dei d
 void Model::modifyData(wxString descr, Task *temp){ // acquisisce e salva le modifiche dei dettagli del task
 
     auto element = itemlist.begin();
-    while ((*element)->description != descr) //cerco il record da modificare
-    {
+    while (element->description != descr) { //cerco il record da modificare
         element++;
     }
-    (*element)->data = temp->data;
-    (*element)->note = temp->note;
-    (*element)->completed = temp->completed;
-    (*element)->priority = temp->priority;
-    (*element)->modify = temp->modify;
+
+    element->data = temp->data;
+    element->note = temp->note;
+    element->completed = temp->completed;
+    element->priority = temp->priority;
+    element->modify = temp->modify;
 
     Save(filename, itemlist);
 

@@ -1,7 +1,7 @@
 Orazio
 Cena con Clarabella
-31121999
-Provaci ancora Orazio !!!
+16/04/2019
+Provaci ancora Orazio !
 1
 0
 0
@@ -35,7 +35,7 @@ Prova Nota Zio Paperone
 0
 Pluto
 Passeggiatina con Pippo
-14/03/2002
+14/03/2003
 Prova Nota Pluto !!!
 0
 0
@@ -43,7 +43,7 @@ Prova Nota Pluto !!!
 Pluto
 Giocare con la palla
 
-
+Portare pallone morbido
 0
 0
 0
@@ -51,6 +51,13 @@ Macchia Nera
 Uccidere Topolino
 31/12/2019
 caricare la pistola
+0
+0
+0
+Paperino
+Cinema con Paperina
+
+
 0
 0
 0
