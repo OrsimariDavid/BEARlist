@@ -21,7 +21,13 @@ protected:
         temp.completed = false;
         temp.priority = false;
         temp.modify = false;
-        //Task* temp_ptr = &temp;
+
+    }
+
+    virtual void TearDown() {
+
+        model->delete_list(temp.list);
+
     }
 
     Model* model = new Model;
@@ -29,6 +35,7 @@ protected:
     Fake_View_1* principal_view = new Fake_View_1(model); //cambia vero in falso
     list<Task> itemlist_test;
     Task temp;
+    string text;
 };
 
 TEST_F(ModelSuite, TestNotify) {
@@ -46,14 +53,12 @@ TEST_F (ModelSuite, TestSet) {
     ASSERT_EQ ("prova", model->text);
 }
 
-
 TEST_F (ModelSuite, File_Op) {
 
     auto itr = itemlist_test.begin();
     ASSERT_EQ ("Orazio", itr->list);
 
 }
-
 
 TEST_F (ModelSuite, TestSetData) {
 
