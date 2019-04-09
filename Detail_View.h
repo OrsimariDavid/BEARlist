@@ -11,6 +11,7 @@
 #endif
 
 #include "Controller.h"
+#include "Date.h"
 
 
 class Detail_View : public wxFrame, public Observer  {
@@ -20,6 +21,7 @@ public:
     virtual ~Detail_View();
     virtual void Update() override;
     virtual void SetData (wxCommandEvent& event); //legge in tempo reale le modifiche da tastiera dei campi Detail_View
+    virtual void Set_Deadline (wxCommandEvent& event);
     virtual void Enable_Disable (wxCommandEvent& event); //Abilita e disabilita i campi della Detail_View
     virtual void OnExit ( wxCommandEvent& event );
     virtual void OnClose( wxCommandEvent& event );
@@ -31,14 +33,16 @@ private:
     wxStaticText *label;
     wxStaticText *selectedtask;
     wxStaticText *st1;
-    wxTextCtrl *tc;
     wxStaticText *st2;
     wxTextCtrl *tc2;
     wxCheckBox *cb1;
     wxCheckBox *cb2;
     wxCheckBox *cb3;
+    wxButton *btn_deadline;
     wxButton *btn_quit;
     wxButton *btn_close;
+
+    Date deadline;
 
 };
 

@@ -7,7 +7,7 @@
 
 #include <vector>
 #include "Controller.h"
-#include "List_View.h"
+#include "Activity_View.h"
 #include "Detail_View.h"
 
 enum //ID degli eventi
@@ -31,11 +31,11 @@ struct Group_List {
 
 };
 
-class Principal_View : public wxFrame, public Observer {
+class Principal_List_View : public wxFrame, public Observer {
 
 public:
-    Principal_View(Model* model, Controller* controller, wxWindow* parent=NULL, wxWindowID id = wxID_ANY, const wxString& title = wxEmptyString, const wxPoint& pos = wxPoint (100,150), const wxSize& size = wxSize( 750, 750 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
-    virtual ~Principal_View();
+    Principal_List_View(Model* model, Controller* controller, wxWindow* parent=NULL, wxWindowID id = wxID_ANY, const wxString& title = wxEmptyString, const wxPoint& pos = wxPoint (100,150), const wxSize& size = wxSize( 750, 750 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
+    virtual ~Principal_List_View();
     virtual void Update() override;
     void OnExit ( wxCommandEvent& event );
     void OnAbout ( wxCommandEvent& event );

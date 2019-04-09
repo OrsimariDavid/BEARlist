@@ -4,7 +4,7 @@
 
 #include "Controller.h"
 
-void Controller::dbclick_listView(wxString text) {
+void Controller::dbclick_activityView(wxString text) {
     Task temp;
     list<Task> task_list = model->getData(); //carica la lista con i dati
     auto element = task_list.begin();
@@ -18,11 +18,12 @@ void Controller::dbclick_listView(wxString text) {
     temp.completed = element->completed;
     temp.priority = element->priority;
     temp.modify = element->modify;
-    text_task = text;
+    activity_name = text;
+    activity_deadline = element->data;
     model->setViewDetail(temp);
 }
 
-void Controller::dbclick_principalView(wxString text) {
+void Controller::dbclick_listView(wxString text) {
 
     model->setTextList(text);
 }
@@ -57,18 +58,18 @@ void Controller::activity_add() {
 
         int count=0;
         for (auto itr = task_list.begin(); itr != task_list.end(); itr++) {
-            if (itr->list == model->text)
+            if (itr->list == model->list_name)
                 count++; //conta quanti task appartenenti ad una "text_list" ci sono nella lista con i dati
         }
         if (count == 1) { //se c'è un task soltanto verifica se è vuoto o meno
             for (auto itr = task_list.begin(); itr != task_list.end(); itr++) {
-                if (itr->list == model->text && itr->description.empty()) { //se c'è ed è vuoto sostituisce la descrizione al primo posto della lista
+                if (itr->list == model->list_name && itr->description.empty()) { //se c'è ed è vuoto sostituisce la descrizione al primo posto della lista
                     model->rename_Activity(itr->description, str);
                     break;
 
-                } else if (itr->list == model->text && !(itr->description.empty())) { //se c'è e non è vuoto inserisce l'elemento successivo
+                } else if (itr->list == model->list_name && !(itr->description.empty())) { //se c'è e non è vuoto inserisce l'elemento successivo
                     Task temp_task;
-                    temp_task.list = model->text;
+                    temp_task.list = model->list_name;
                     temp_task.description = str;
                     model->setData(temp_task);
                     break;
@@ -76,7 +77,7 @@ void Controller::activity_add() {
             }
         } else { //se ci sono piu task procede all'inserimento consecutivo
             Task temp_task;
-            temp_task.list = model->text;
+            temp_task.list = model->list_name;
             temp_task.description = str;
             model->setData(temp_task);
         }
@@ -89,7 +90,7 @@ void Controller::list_clear() {
 }
 
 void Controller::list_delete(wxString text) { //cancello lista con tutti i suoi task
-    model->delete_list(model->Clean_Text(text));
+    model->delete_list(model->clean_ListName(text));
 }
 
 void Controller::activity_delete(wxString text) { //cancello i singoli task di una lista
@@ -98,7 +99,7 @@ void Controller::activity_delete(wxString text) { //cancello i singoli task di u
 
 void Controller::list_rename(wxString text) {
     wxString renamed;
-    wxString estr = model->Clean_Text(text);
+    wxString estr = model->clean_ListName(text);
     renamed = wxGetTextFromUser(wxT("Rinomina la lista"),wxT("Rename dialog"), estr);
 
     if (!renamed.IsEmpty()) { //evita di inserire stringhe vuote
@@ -106,7 +107,7 @@ void Controller::list_rename(wxString text) {
     }
 }
 
-void Controller::description_rename(int sel, wxString text) {
+void Controller::activity_rename(int sel, wxString text) {
     wxString renamed;
     if (sel != -1)
         renamed = wxGetTextFromUser(wxT("Rinomina l'attività"), wxT("Rename dialog"), text);
@@ -115,8 +116,20 @@ void Controller::description_rename(int sel, wxString text) {
     }
 }
 
-void Controller::setdata(Task temp){
+void Controller::set_data(Task temp){
 
-    model->modifyData(text_task, &temp);
+    model->modifyData(activity_name, &temp);
 
+}
+
+void Controller::set_deadline(wxString temp){
+
+    activity_deadline = temp;
+    model->modifyDeadline(activity_name, temp);
+}
+
+void Controller::del_deadline(){
+
+    activity_deadline = "";
+    model->delDeadline(activity_name);
 }

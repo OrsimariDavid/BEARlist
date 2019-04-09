@@ -2,10 +2,10 @@
 // Created by David  on 2019-03-17.
 //
 
-#include "Principal_View.h"
+#include "Principal_List_View.h"
 
 
-Principal_View::Principal_View(Model* model, Controller* controller, wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxFrame( parent, id, title, pos, size, style ) {
+Principal_List_View::Principal_List_View(Model* model, Controller* controller, wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxFrame( parent, id, title, pos, size, style ) {
 
     wxMenu* menuFile = new wxMenu; //creas oggetto "Menu"
     menuFile->Append ( Menu_File_New, "&New... \tCtrl-N", "New list" );
@@ -61,51 +61,51 @@ Principal_View::Principal_View(Model* model, Controller* controller, wxWindow* p
     this->Layout();
 
     // Connect Events
-    list_box->Connect(wxEVT_COMMAND_LISTBOX_DOUBLECLICKED, wxCommandEventHandler( Principal_View::OnDblClick ), NULL, this);
-    m_newb->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Principal_View::OnNew ), NULL, this );
-    m_renameb->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Principal_View::OnRename ), NULL, this );
-    m_clearb->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Principal_View::OnClear ), NULL, this );
-    m_deleteb->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Principal_View::OnDelete ), NULL, this);
-    Connect (wxID_EXIT, wxEVT_COMMAND_MENU_SELECTED,wxCommandEventHandler( Principal_View :: OnExit));
-    Connect (wxID_ABOUT , wxEVT_COMMAND_MENU_SELECTED,wxCommandEventHandler( Principal_View :: OnAbout));
-    Connect (Menu_File_New, wxEVT_COMMAND_MENU_SELECTED,wxCommandEventHandler( Principal_View :: OnNew));
-    Connect (Menu_File_Rename, wxEVT_COMMAND_MENU_SELECTED,wxCommandEventHandler( Principal_View :: OnRename));
-    Connect (Menu_File_Delete, wxEVT_COMMAND_MENU_SELECTED,wxCommandEventHandler( Principal_View :: OnDelete));
-    Connect (Menu_File_Clear, wxEVT_COMMAND_MENU_SELECTED,wxCommandEventHandler( Principal_View :: OnClear));
-    Connect (wxEVT_CLOSE_WINDOW, wxCommandEventHandler( Principal_View :: OnClose) );
+    list_box->Connect(wxEVT_COMMAND_LISTBOX_DOUBLECLICKED, wxCommandEventHandler( Principal_List_View::OnDblClick ), NULL, this);
+    m_newb->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Principal_List_View::OnNew ), NULL, this );
+    m_renameb->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Principal_List_View::OnRename ), NULL, this );
+    m_clearb->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Principal_List_View::OnClear ), NULL, this );
+    m_deleteb->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Principal_List_View::OnDelete ), NULL, this);
+    Connect (wxID_EXIT, wxEVT_COMMAND_MENU_SELECTED,wxCommandEventHandler( Principal_List_View :: OnExit));
+    Connect (wxID_ABOUT , wxEVT_COMMAND_MENU_SELECTED,wxCommandEventHandler( Principal_List_View :: OnAbout));
+    Connect (Menu_File_New, wxEVT_COMMAND_MENU_SELECTED,wxCommandEventHandler( Principal_List_View :: OnNew));
+    Connect (Menu_File_Rename, wxEVT_COMMAND_MENU_SELECTED,wxCommandEventHandler( Principal_List_View :: OnRename));
+    Connect (Menu_File_Delete, wxEVT_COMMAND_MENU_SELECTED,wxCommandEventHandler( Principal_List_View :: OnDelete));
+    Connect (Menu_File_Clear, wxEVT_COMMAND_MENU_SELECTED,wxCommandEventHandler( Principal_List_View :: OnClear));
+    Connect (wxEVT_CLOSE_WINDOW, wxCommandEventHandler( Principal_List_View :: OnClose) );
 
     Update();
 }
 
-Principal_View::~Principal_View() {
+Principal_List_View::~Principal_List_View() {
 
     // Disconnect Events
-    list_box->Disconnect(wxEVT_COMMAND_LISTBOX_DOUBLECLICKED, wxCommandEventHandler( Principal_View::OnDblClick ), NULL, this);
-    m_newb->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Principal_View::OnNew ), NULL, this );
-    m_renameb->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Principal_View::OnRename ), NULL, this );
-    m_clearb->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Principal_View::OnClear ), NULL, this );
-    m_deleteb->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Principal_View::OnDelete ), NULL, this );
-    Disconnect (wxID_EXIT, wxEVT_COMMAND_MENU_SELECTED,wxCommandEventHandler( Principal_View :: OnExit));
-    Disconnect (wxID_ABOUT , wxEVT_COMMAND_MENU_SELECTED,wxCommandEventHandler( Principal_View :: OnAbout));
-    Disconnect (Menu_File_New, wxEVT_COMMAND_MENU_SELECTED,wxCommandEventHandler( Principal_View :: OnNew));
-    Disconnect (Menu_File_Rename, wxEVT_COMMAND_MENU_SELECTED,wxCommandEventHandler( Principal_View :: OnRename));
-    Disconnect (Menu_File_Delete, wxEVT_COMMAND_MENU_SELECTED,wxCommandEventHandler( Principal_View :: OnDelete));
-    Disconnect (Menu_File_Clear, wxEVT_COMMAND_MENU_SELECTED,wxCommandEventHandler( Principal_View :: OnClear));
-    Disconnect (wxEVT_CLOSE_WINDOW, wxCommandEventHandler( Principal_View :: OnClose) );
+    list_box->Disconnect(wxEVT_COMMAND_LISTBOX_DOUBLECLICKED, wxCommandEventHandler( Principal_List_View::OnDblClick ), NULL, this);
+    m_newb->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Principal_List_View::OnNew ), NULL, this );
+    m_renameb->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Principal_List_View::OnRename ), NULL, this );
+    m_clearb->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Principal_List_View::OnClear ), NULL, this );
+    m_deleteb->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Principal_List_View::OnDelete ), NULL, this );
+    Disconnect (wxID_EXIT, wxEVT_COMMAND_MENU_SELECTED,wxCommandEventHandler( Principal_List_View :: OnExit));
+    Disconnect (wxID_ABOUT , wxEVT_COMMAND_MENU_SELECTED,wxCommandEventHandler( Principal_List_View :: OnAbout));
+    Disconnect (Menu_File_New, wxEVT_COMMAND_MENU_SELECTED,wxCommandEventHandler( Principal_List_View :: OnNew));
+    Disconnect (Menu_File_Rename, wxEVT_COMMAND_MENU_SELECTED,wxCommandEventHandler( Principal_List_View :: OnRename));
+    Disconnect (Menu_File_Delete, wxEVT_COMMAND_MENU_SELECTED,wxCommandEventHandler( Principal_List_View :: OnDelete));
+    Disconnect (Menu_File_Clear, wxEVT_COMMAND_MENU_SELECTED,wxCommandEventHandler( Principal_List_View :: OnClear));
+    Disconnect (wxEVT_CLOSE_WINDOW, wxCommandEventHandler( Principal_List_View :: OnClose) );
 
     // unsubscribe from model
     model->removeObserver(this);
 }
 
-void Principal_View::OnExit(wxCommandEvent& event) {
+void Principal_List_View::OnExit(wxCommandEvent& event) {
     exit(1);
 }
 
-void Principal_View::OnAbout(wxCommandEvent& event) {
+void Principal_List_View::OnAbout(wxCommandEvent& event) {
     wxMessageBox( "by David Orsimari - Ver. 1.0", "About B E A R list !!!", wxOK | wxICON_INFORMATION );
 }
 
-void Principal_View::OnDblClick(wxCommandEvent &event) {
+void Principal_List_View::OnDblClick(wxCommandEvent &event) {
     if (model->Detail_isOpen ) { //chiude la vista Detail se aperta
         Detail_View *detail_ptr;
         detail_ptr = (Detail_View *) model->observers.back();
@@ -115,19 +115,19 @@ void Principal_View::OnDblClick(wxCommandEvent &event) {
     }
     sel = list_box->GetSelection();
     wxString text = list_box->GetString(sel);
-    controller->dbclick_principalView(text);
+    controller->dbclick_listView(text);
 }
 
 
-void Principal_View::OnNew(wxCommandEvent &event) {
+void Principal_List_View::OnNew(wxCommandEvent &event) {
     if (model->Detail_isOpen || model->List_isOpen) { //chiude le viste List e Detail se aperte
-        List_View *list_ptr;
+        Principal_List_View *list_ptr;
         Detail_View *detail_ptr;
         detail_ptr = (Detail_View *) model->observers.back();
         detail_ptr->Show(false);
         list<Observer*>::iterator itr= model->observers.begin();
         itr++;
-        list_ptr = (List_View *) (*itr);
+        list_ptr = (Principal_List_View *) (*itr);
         list_ptr->Show(false);
         model->Detail_isOpen = false;
         model->List_isOpen = false;
@@ -135,15 +135,15 @@ void Principal_View::OnNew(wxCommandEvent &event) {
     controller->list_add();
 }
 
-void Principal_View::OnRename(wxCommandEvent &event) {
+void Principal_List_View::OnRename(wxCommandEvent &event) {
     if (model->Detail_isOpen || model->List_isOpen) { //chiude le viste List e Detail se aperte
-        List_View *list_ptr;
+        Principal_List_View *list_ptr;
         Detail_View *detail_ptr;
         detail_ptr = (Detail_View *) model->observers.back();
         detail_ptr->Show(false);
         list<Observer*>::iterator itr= model->observers.begin();
         itr++;
-        list_ptr = (List_View *) (*itr);
+        list_ptr = (Principal_List_View *) (*itr);
         list_ptr->Show(false);
         model->Detail_isOpen = false;
         model->List_isOpen = false;
@@ -158,15 +158,15 @@ void Principal_View::OnRename(wxCommandEvent &event) {
     }
 }
 
-void Principal_View::OnDelete(wxCommandEvent &event) {
+void Principal_List_View::OnDelete(wxCommandEvent &event) {
     if (model->Detail_isOpen || model->List_isOpen) { //chiude le viste List e Detail se aperte
-        List_View *list_ptr;
+        Principal_List_View *list_ptr;
         Detail_View *detail_ptr;
         detail_ptr = (Detail_View *) model->observers.back();
         detail_ptr->Show(false);
         list<Observer*>::iterator itr= model->observers.begin();
         itr++;
-        list_ptr = (List_View *) (*itr);
+        list_ptr = (Principal_List_View *) (*itr);
         list_ptr->Show(false);
         model->Detail_isOpen = false;
         model->List_isOpen = false;
@@ -179,17 +179,17 @@ void Principal_View::OnDelete(wxCommandEvent &event) {
         controller->list_delete(text);
     }
 }
-void Principal_View::OnClear(wxCommandEvent &event) {
+void Principal_List_View::OnClear(wxCommandEvent &event) {
     controller->list_clear();
 }
 
-void Principal_View::OnClose(wxCommandEvent &event) {
+void Principal_List_View::OnClose(wxCommandEvent &event) {
     wxMessageDialog *msg = new wxMessageDialog(NULL, wxT("Vuoi uscire davvero dal programma ?"), wxT("Attenzione !!!"), wxYES_NO | wxNO_DEFAULT );
     if (msg->ShowModal() == wxID_YES)
     exit (1);
 }
 
-void Principal_View::Update() {
+void Principal_List_View::Update() {
 
 
     if (model->List_isOpen) {
@@ -222,7 +222,7 @@ void Principal_View::Update() {
     }
 }
 
-vector<Group_List> Principal_View::Counter_Activity(list<Task> task_list) { //conteggia il numero delle attività della singola lista
+vector<Group_List> Principal_List_View::Counter_Activity(list<Task> task_list) { //conteggia il numero delle attività della singola lista
 
     vector<Group_List> temp_vect;
 
@@ -242,7 +242,7 @@ vector<Group_List> Principal_View::Counter_Activity(list<Task> task_list) { //co
     return Erase_Duplicate(temp_vect);
 }
 
-vector<Group_List> Principal_View::Erase_Duplicate(vector<Group_List> temp_vect) { //elimina i duplicati nella lista da pubblicare
+vector<Group_List> Principal_List_View::Erase_Duplicate(vector<Group_List> temp_vect) { //elimina i duplicati nella lista da pubblicare
         s="";
         num_activity=0;
         myGroup.list = "";

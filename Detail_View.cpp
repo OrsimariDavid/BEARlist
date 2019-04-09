@@ -23,18 +23,18 @@ Detail_View::Detail_View(Model* model, Controller* controller, wxWindow* parent,
 
     label = new wxStaticText(this, wxID_ANY, wxT("Dettagli dell'attività: "));
     selectedtask = new wxStaticText(this, wxID_ANY, wxT(""));
-    st1 = new wxStaticText(this, wxID_ANY, wxT("Data Scadenza"));
-    tc = new wxTextCtrl(this, wxID_ANY);
+    st1 = new wxStaticText(this, wxID_ANY, wxT(""));
     st2 = new wxStaticText(this, wxID_ANY, wxT("Annotazioni"));
     tc2 = new wxTextCtrl(this, wxID_ANY, wxT(""), wxPoint(-1, -1), wxSize(-1, -1), wxTE_MULTILINE);
     cb1 = new wxCheckBox(this,  wxID_ANY, wxT("Completato"));
     cb2 = new wxCheckBox(this, wxID_ANY, wxT("Prioritario"));
     cb3 = new wxCheckBox(this, wxID_ANY, wxT("Modifica i dati"));
+    btn_deadline = new wxButton (this, wxID_ANY, wxT("Data Scadenza"));
     btn_quit = new wxButton(this, wxID_ANY, wxT("Quit"));
     btn_close = new wxButton(this, wxID_ANY, wxT("Close"));
 
     //disabilitia i campi dettaglio del task per evitare modifiche non volute dall'utente
-    tc->Enable(false);
+    btn_deadline->Enable(false);
     tc2->Enable(false);
     cb1->Enable(false);
     cb2->Enable(false);
@@ -47,8 +47,8 @@ Detail_View::Detail_View(Model* model, Controller* controller, wxWindow* parent,
 
     vbox->Add(hbox0, 0, wxLEFT, 10);
 
-    hbox1->Add(st1, 0, wxRIGHT, 8);
-    hbox1->Add(tc, 0);
+    hbox1->Add(btn_deadline, 0, wxRIGHT, 8);
+    hbox1->Add(st1, 0);
 
     vbox->Add(hbox1, 0, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 20);
     vbox->Add(-1, 10);
@@ -80,11 +80,11 @@ Detail_View::Detail_View(Model* model, Controller* controller, wxWindow* parent,
     this->SetSizer(frameSizer);
     this->Layout();
 
-    tc->Connect( wxEVT_TEXT,wxCommandEventHandler( Detail_View::SetData ), NULL, this);
     tc2->Connect( wxEVT_TEXT,wxCommandEventHandler( Detail_View::SetData ), NULL, this);
     cb1->Connect( wxEVT_CHECKBOX,wxCommandEventHandler( Detail_View::SetData ), NULL, this);
     cb2->Connect( wxEVT_CHECKBOX,wxCommandEventHandler( Detail_View::SetData ), NULL, this);
     cb3->Connect( wxEVT_CHECKBOX,wxCommandEventHandler( Detail_View::Enable_Disable ), NULL, this);
+    btn_deadline->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Detail_View::Set_Deadline ), NULL, this );
     btn_quit->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Detail_View::OnExit ), NULL, this );
     btn_close->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Detail_View::OnClose ), NULL, this );
     Connect (wxEVT_CLOSE_WINDOW, wxCommandEventHandler( Detail_View :: OnClose) );
@@ -94,11 +94,11 @@ Detail_View::Detail_View(Model* model, Controller* controller, wxWindow* parent,
 
 Detail_View::~Detail_View() {
 
-    tc->Disconnect( wxEVT_TEXT,wxCommandEventHandler( Detail_View::SetData ), NULL, this);
     tc2->Disconnect( wxEVT_TEXT,wxCommandEventHandler( Detail_View::SetData ), NULL, this);
     cb1->Disconnect( wxEVT_CHECKBOX,wxCommandEventHandler( Detail_View::SetData ), NULL, this);
     cb2->Disconnect( wxEVT_CHECKBOX,wxCommandEventHandler( Detail_View::SetData ), NULL, this);
     cb3->Disconnect( wxEVT_CHECKBOX,wxCommandEventHandler( Detail_View::Enable_Disable ), NULL, this);
+    btn_deadline->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Detail_View::Set_Deadline ), NULL, this );
     btn_close->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Detail_View::OnClose ), NULL, this );
     Disconnect (wxEVT_CLOSE_WINDOW, wxCommandEventHandler( Detail_View :: OnClose) );
 
@@ -110,25 +110,46 @@ void Detail_View::SetData(wxCommandEvent &event) {
     if (!cb3->GetValue()) return; //disabilita la funzione quando è il software ad aggiornare i campi di dettaglio
     Task temp;
     //acquisizione modifiche dell'utente nei dettagli del task
-    temp.data = tc->GetValue();
+    temp.data = controller->activity_deadline;
     temp.note = tc2->GetValue();
     temp.completed = cb1->GetValue();
     temp.priority = cb2->GetValue();
     temp.modify = false;
-    controller->setdata(temp);
+    controller->set_data(temp);
+}
+
+void Detail_View::Set_Deadline(wxCommandEvent &event) { //gestione evento bottone per settare la data di scadenza dell'attività
+
+    wxString date;
+
+    date = controller->activity_deadline;
+    wxString str = wxGetTextFromUser(wxT("per cancellare scrivi: del"), "Data Scadenza: gg/mm/aaaa", date);
+    if (!str.empty() && !(str == "del")) {
+        try {
+             deadline.check_format_date(str);
+             str = deadline.getStringDate();
+             controller->set_deadline(str);
+        }
+        catch (BearException& e) {
+        cerr << e.what() << endl;
+        e.printError();
+        }
+    }
+    if (str == "del")
+        controller->del_deadline();
 }
 
 void Detail_View::Enable_Disable(wxCommandEvent &event) {
     //abilita e disabilita i campi di dettaglio del task per gestire la modifica volontaria dell'utente
     if (cb3->GetValue())
     {
-        tc->Enable(true);
+        btn_deadline->Enable(true);
         tc2->Enable(true);
         cb1->Enable(true);
         cb2->Enable(true);
     } else
     {
-        tc->Enable(false);
+        btn_deadline->Enable(false);
         tc2->Enable(false);
         cb1->Enable(false);
         cb2->Enable(false);
@@ -142,9 +163,9 @@ void Detail_View::Update() {
         this->Show(true);
     }
 
-    selectedtask->SetLabel(controller->text_task);
+    selectedtask->SetLabel(controller->activity_name);
 
-    tc->Enable(false);
+    btn_deadline->Enable(false);
     tc2->Enable(false);
     cb1->Enable(false);
     cb2->Enable(false);
@@ -152,13 +173,14 @@ void Detail_View::Update() {
 
     //pulisce i campi e resetta le check box
     cb3->SetValue(false);
-    tc->Clear();
+    st1->SetLabel("");
     tc2->Clear();
     cb1->SetValue(false);
     cb2->SetValue(false);
 
     //visualizza i dettagli dell'elemento selezionato
-    *(tc) << model->element.data;
+
+    st1->SetLabel(model->element.data);
     *(tc2) << model->element.note;
     cb1->SetValue(model->element.completed);
     cb2->SetValue(model->element.priority);

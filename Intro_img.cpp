@@ -4,7 +4,7 @@
 
 #include "Intro_img.h"
 
-intro_img::intro_img(const std::string& bitmapName, Detail_View* detail_frame, Principal_View* principal_frame, List_View* list_frame, wxWindow* parent, wxWindowID id, const wxString &title, const wxPoint &pos, const wxSize &size, long style)
+intro_img::intro_img(const std::string& bitmapName, Detail_View* detail_frame, Principal_List_View* principal_frame, Activity_View* list_frame, wxWindow* parent, wxWindowID id, const wxString &title, const wxPoint &pos, const wxSize &size, long style)
         : wxFrame( parent, id, title, pos, size, style), frameDetail(detail_frame), Principalframe(principal_frame),frameList (list_frame) {
 
     m_timer = new wxTimer(this, ID_TEST_TIMER);

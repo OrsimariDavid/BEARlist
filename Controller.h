@@ -14,20 +14,28 @@
 
 
 class Controller {
+
 public:
     Controller(Model* m) : model(m) {}
-    void dbclick_listView(wxString text);
-    void dbclick_principalView(wxString text);
-    void list_add(); //aggiunge una lista
-    void activity_add(); //aggiunge una attività
-    void list_clear(); //cancella tutto !!!
-    void list_delete(wxString text); //cancella la singola lista ed i suoi task
-    void activity_delete(wxString text);
-    void list_rename(wxString text);
-    void description_rename(int sel, wxString text);
-    void setdata(Task temp);
-    wxString text_task; //utilizzato da Detail_View per estrarre il testo dell'attività
 
+    void dbclick_activityView(wxString text);
+    void dbclick_listView(wxString text);
+
+    void list_add();                    //aggiunge una lista
+    void list_rename(wxString text);
+    void list_clear();                  //cancella tutto !!!
+    void list_delete(wxString text);    //cancella la singola lista ed i suoi task
+
+    void activity_add();                //aggiunge una attività
+    void activity_rename(int sel, wxString text);
+    void activity_delete(wxString text);
+
+    void set_data(Task temp);           //imposta un task
+    void set_deadline(wxString temp);   //imposta la data del task
+    void del_deadline();                //cancella la data del task
+
+    wxString activity_name;             //utilizzato da Detail_View per estrarre la descrizione dell'attività
+    wxString activity_deadline;
 
 private:
     Model* model;

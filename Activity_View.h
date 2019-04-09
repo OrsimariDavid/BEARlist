@@ -6,14 +6,14 @@
 #define BEARLIST_LIST_VIEW_H
 
 #include "Controller.h"
-#include "Principal_View.h"
+#include "Principal_List_View.h"
 #include "Detail_View.h"
 
-class List_View : public wxFrame, public Observer  {
+class Activity_View : public wxFrame, public Observer  {
 
 public:
-    List_View(Model* model, Controller* controller, wxWindow* parent=NULL, wxWindowID id = wxID_ANY, const wxString& title = wxEmptyString, const wxPoint& pos = wxPoint (900,150), const wxSize& size = wxSize( 750, 750 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL);
-    virtual ~List_View();
+    Activity_View(Model* model, Controller* controller, wxWindow* parent=NULL, wxWindowID id = wxID_ANY, const wxString& title = wxEmptyString, const wxPoint& pos = wxPoint (900,150), const wxSize& size = wxSize( 750, 750 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL);
+    virtual ~Activity_View();
     virtual void Update() override;
     virtual void OnNew (wxCommandEvent& event);
     virtual void OnRename(wxCommandEvent& event);

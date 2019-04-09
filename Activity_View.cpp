@@ -2,9 +2,9 @@
 // Created by David  on 2019-03-17.
 //
 
-#include "List_View.h"
+#include "Activity_View.h"
 
-List_View::List_View(Model* model, Controller* controller, wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxFrame( parent, id, title, pos, size, style ) {
+Activity_View::Activity_View(Model* model, Controller* controller, wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxFrame( parent, id, title, pos, size, style ) {
 
     this->model = model;
     this->model->addObserver(this);
@@ -55,39 +55,39 @@ List_View::List_View(Model* model, Controller* controller, wxWindow* parent, wxW
     this->Layout();
 
     // Connect Events
-    list_detail->Connect( wxEVT_COMMAND_LISTBOX_DOUBLECLICKED, wxCommandEventHandler( List_View::OnDblClick_Detail ), NULL, this);
-    m_newb->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( List_View::OnNew ), NULL, this );
-    m_renameb->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( List_View::OnRename ), NULL, this );
-    m_deleteb->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( List_View::OnDelete ), NULL, this );
-    btn_close->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( List_View::OnClose ), NULL, this );
-    Connect (wxEVT_CLOSE_WINDOW, wxCommandEventHandler( List_View :: OnClose) );
+    list_detail->Connect( wxEVT_COMMAND_LISTBOX_DOUBLECLICKED, wxCommandEventHandler( Activity_View::OnDblClick_Detail ), NULL, this);
+    m_newb->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Activity_View::OnNew ), NULL, this );
+    m_renameb->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Activity_View::OnRename ), NULL, this );
+    m_deleteb->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Activity_View::OnDelete ), NULL, this );
+    btn_close->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Activity_View::OnClose ), NULL, this );
+    Connect (wxEVT_CLOSE_WINDOW, wxCommandEventHandler( Activity_View:: OnClose) );
 
     Update();
 }
 
-List_View::~List_View() {
+Activity_View::~Activity_View() {
 
     // Disconnect Events
-    list_detail->Disconnect( wxEVT_COMMAND_LISTBOX_DOUBLECLICKED, wxCommandEventHandler( List_View::OnDblClick_Detail ), NULL, this);
-    m_newb->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( List_View::OnNew ), NULL, this );
-    m_renameb->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( List_View::OnRename ), NULL, this );
-    m_deleteb->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( List_View::OnDelete ), NULL, this );
-    btn_close->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( List_View::OnClose ), NULL, this );
-    Disconnect (wxEVT_CLOSE_WINDOW, wxCommandEventHandler( List_View :: OnClose) );
+    list_detail->Disconnect( wxEVT_COMMAND_LISTBOX_DOUBLECLICKED, wxCommandEventHandler( Activity_View::OnDblClick_Detail ), NULL, this);
+    m_newb->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Activity_View::OnNew ), NULL, this );
+    m_renameb->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Activity_View::OnRename ), NULL, this );
+    m_deleteb->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Activity_View::OnDelete ), NULL, this );
+    btn_close->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Activity_View::OnClose ), NULL, this );
+    Disconnect (wxEVT_CLOSE_WINDOW, wxCommandEventHandler( Activity_View:: OnClose) );
 
     // unsubscribe from model
     model->removeObserver(this);
 }
 
-void List_View::OnDblClick_Detail (wxCommandEvent &event) {
+void Activity_View::OnDblClick_Detail (wxCommandEvent &event) {
     //estrae il testo dal task selezionato
     sel = list_detail->GetSelection();
     wxString text = list_detail->GetString(sel);
-    controller->dbclick_listView(text);
+    controller->dbclick_activityView(text);
 
 }
 
-void List_View::OnNew(wxCommandEvent &event) {
+void Activity_View::OnNew(wxCommandEvent &event) {
     if (model->Detail_isOpen ) { //chiude la vista Detail se aperta
         Detail_View *detail_ptr;
         detail_ptr = (Detail_View *) model->observers.back();
@@ -97,7 +97,7 @@ void List_View::OnNew(wxCommandEvent &event) {
     controller->activity_add();
 }
 
-void List_View::OnRename(wxCommandEvent &event) {
+void Activity_View::OnRename(wxCommandEvent &event) {
     if (model->Detail_isOpen ) { //chiude la vista Detail se aperta
         Detail_View *detail_ptr;
         detail_ptr = (Detail_View *) model->observers.back();
@@ -110,11 +110,11 @@ void List_View::OnRename(wxCommandEvent &event) {
         wxMessageBox("Devi prima selezionare una attività !!!");
     } else {
         wxString text = list_detail->GetString(sel);
-        controller->description_rename(sel, text);
+        controller->activity_rename(sel, text);
     }
 }
 
-void List_View::OnDelete(wxCommandEvent &event) {
+void Activity_View::OnDelete(wxCommandEvent &event) {
     if (model->Detail_isOpen ) { //chiude la vista Detail se aperta
         Detail_View *detail_ptr;
         detail_ptr = (Detail_View *) model->observers.back();
@@ -130,29 +130,29 @@ void List_View::OnDelete(wxCommandEvent &event) {
     }
 }
 
-void List_View::Update() {
+void Activity_View::Update() {
     if (model->List_isOpen) {
         this->Show(true);
     }
-    selectedlist->SetLabel(model->text);
+    selectedlist->SetLabel(model->list_name);
     list_detail->Clear();
     list<Task> task_list = model->getData();
 
     //riempie la listbox in visualizzazione
     for (auto itr = task_list.begin(); itr != task_list.end(); itr++) {
-        if (itr->list == model->text)
+        if (itr->list == model->list_name)
             list_detail->Append(itr->description);
     }
 
 }
 
-void List_View::OnClose(wxCommandEvent &event) {
+void Activity_View::OnClose(wxCommandEvent &event) {
 
-    Principal_View *principal_ptr;
+    Principal_List_View *principal_ptr;
     Detail_View *detail_ptr;
 
     //type casting per l'accesso alle Viste
-    principal_ptr = (Principal_View *) model->observers.front();
+    principal_ptr = (Principal_List_View *) model->observers.front();
     detail_ptr = (Detail_View *) model->observers.back();
 
     //chiude entrambe le viste

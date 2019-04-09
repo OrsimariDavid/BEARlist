@@ -4,6 +4,7 @@
 
 #include "Model.h"
 
+
 // inserimento su file operatore
 ostream& operator<<(ostream& os, const Task s) {
     // scrive i singoli membri del task con fine linea per la getline() in lettura
@@ -20,7 +21,7 @@ ostream& operator<<(ostream& os, const Task s) {
 
 // estrazione da file operatore
 istream& operator>>(istream& is, Task& s) {
-    // rlegge i singoli membri del task
+    // rilegge i singoli membri del task
     string c;
     getline(is, s.list);
     getline(is, s.description);
@@ -49,20 +50,33 @@ istream& operator>>(istream& is, Task& s) {
 void Model::Save(const string& filename, list<Task> task_list) {
 
     //salva la lista aggiornata con i dati su file
-    ofstream ofs( filename );
-    for (auto itr = task_list.begin(); itr != task_list.end(); itr++)
-    {
-        ofs << (*itr);
-    }
-    ofs.close();
+   try {
+       ofstream ofs(filename);
+       if (!ofs.is_open())
+           throw BearException {"Non trovo il file per salvare: " + filename};
 
+       for (auto itr = task_list.begin(); itr != task_list.end(); itr++) {
+           ofs << (*itr);
+       }
+       ofs.close();
+   }
+   catch (ios_base::failure& e){
+      throw BearException {"Non posso aprire il file : ", filename};
+   }
+   catch (BearException& e) {
+       exit(1);
+   }
 }
 
 list<Task> Model::Load(string filename)  {
 
     bool empty_element=false;
 
-    ifstream ifs( filename );
+    ifstream ifs(filename);
+
+    if (!ifs.is_open())
+        throw BearException ("ERRORE !!! Il file contenente l'archivio : '" + filename + "'" + " non esiste nella workdir");
+
     itemlist.clear(); //pulisce e svuota la lista
 
     while ((!ifs.eof()))
@@ -87,10 +101,18 @@ list<Task> Model::Load(string filename)  {
 }
 
 void Model::Clear(string filename) {
-
-    ofstream ofs( filename );
-    ofs.close();
-
+    try{
+        ofstream ofs( filename );
+        if (!ofs.is_open())
+            throw BearException {"Non trovo il file per salvare: " + filename};
+        ofs.close();
+    }
+    catch (ios_base::failure& e){
+        throw BearException {"Non posso aprire il file : ", filename};
+    }
+    catch (BearException& e) {
+        exit(1);
+}
 }
 
 void Model::notify() {
@@ -101,20 +123,30 @@ void Model::notify() {
 list<Task> Model::getData() {
 
     //carica la lista con i dati dal file
-    itemlist=Load(filename);
-    return itemlist;
+    try {
+            itemlist=Load(filename);
+            return itemlist;
+        }
+    catch (ios_base::failure& e) {
+
+        throw BearException {"Non posso aprire il file : ", filename};
+
+    }
+    catch (BearException& e) {
+        cerr << e.what() << endl;
+        exit(1);
+    }
 }
 
 void Model::setTextList(wxString text) {
-    this->text = Clean_Text(text);
+    this->list_name = clean_ListName(text);
     List_isOpen=true;
     notify();
 }
 
-wxString Model::Clean_Text (wxString text) { //ripulisce testo della lista dal numero delle attività
+wxString Model::clean_ListName(wxString text) { //ripulisce testo della lista dal numero delle attività
 
-    size_t pos = text.find ("(",0);
-    wxString extr = text.substr (0, pos-4);
+    wxString extr = text.SubString (0, text.length()-8);
     return extr;
 }
 
@@ -136,12 +168,12 @@ void Model::delete_Activity(wxString description) { //cancella una attività
 
     int count=0;
     for (auto itr = itemlist.begin(); itr != itemlist.end(); itr++) {
-        if (itr->list == this->text)
+        if (itr->list == this->list_name)
             count++; //conta quanti task appartenenti ad una "text_list" ci sono nella lista con i dati
     }
     if (count == 1) { //se c'è un task soltanto verifica se è vuoto o meno
         for (auto itr = itemlist.begin(); itr != itemlist.end(); itr++) {
-            if (itr->list == this->text) {
+            if (itr->list == this->list_name) {
                 itr->description = "";
                 break;
             }
@@ -187,21 +219,57 @@ void Model::setViewDetail(Task selected_el){ //aggiorna la visualizzazione dei d
 
 }
 
-void Model::modifyData(wxString descr, Task *temp){ // acquisisce e salva le modifiche dei dettagli del task
+void Model::modifyData(wxString descr, Task *temp) { // acquisisce e salva le modifiche dei dettagli del task
 
-    auto element = itemlist.begin();
-    while (element->description != descr) { //cerco il record da modificare
-        element++;
+    auto itr = itemlist.begin();
+    while (itr->description != descr) { //cerco il record da modificare
+        itr++;
     }
 
-    element->data = temp->data;
-    element->note = temp->note;
-    element->completed = temp->completed;
-    element->priority = temp->priority;
-    element->modify = temp->modify;
+    itr->data = temp->data;
+    itr->note = temp->note;
+    itr->completed = temp->completed;
+    itr->priority = temp->priority;
+    itr->modify = temp->modify;
 
     Save(filename, itemlist);
+}
 
+void Model::modifyDeadline(wxString descr, wxString temp) {
+
+    auto itr = itemlist.begin();
+    while (itr->description != descr) { //cerco il record da modificare
+        itr++;
+    }
+
+    itr->data = temp;
+
+    element.data = itr->data;
+    element.note = itr->note;
+    element.completed = itr->completed;
+    element.priority = itr->priority;
+    element.modify = itr->modify;
+
+    Save(filename, itemlist);
+    notify();
+
+}
+
+void Model::delDeadline(wxString descr) {
+
+    auto itr = itemlist.begin();
+    while (itr->description != descr) { //cerco il record da modificare
+        itr++;
+    }
+    itr->data = "";
+    element.data = itr->data;
+    element.note = itr->note;
+    element.completed = itr->completed;
+    element.priority = itr->priority;
+    element.modify = itr->modify;
+
+    Save(filename, itemlist);
+    notify();
 }
 
 void Model::addObserver(Observer* o) {
