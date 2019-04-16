@@ -132,7 +132,8 @@ void Detail_View::Set_Deadline(wxCommandEvent &event) { //gestione evento botton
         }
         catch (BearException& e) {
         cerr << e.what() << endl;
-        e.printError();
+            wxMessageBox(e.what());
+            //e.printError();
         }
     }
     if (str == "del")

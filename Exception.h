@@ -15,12 +15,11 @@ class BearException : public runtime_error {
 
 public:
     BearException (string msg) : runtime_error(msg), mess(msg) {}
-    //BearException (string whatMsg);
     BearException (string msg, string filename) : runtime_error(msg + filename), mess(msg+filename) {}
     void printError ();
 
 private:
-    string filename;
+    //string filename;
     string mess;
 
 };
